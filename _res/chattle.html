@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>chattle</title>
+
+    <script src="_res/jquery-1.6.1.min.js"></script>
+    <script src="_res/jquery.render.js"></script>
+    <script src="_res/jquery.observable.js"></script>
+    <script src="_res/jquery.views.js"></script>
+
+    <link rel="stylesheet" href="_res/978grid.css" type="text/css" />
+
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+            margin: 30px auto;
+            background: ghostwhite;
+        }
+        .box {
+            -moz-box-sizing: border-box;
+            margin: 30px 0;
+            box-shadow: 0px 0px 3px grey;
+            border-radius: 6px;
+            background: white;
+        }
+        header, nav, footer, article, aside {
+            -moz-box-sizing: border-box;
+            padding: 15px;
+        }
+        .header-nav {
+            -moz-box-sizing: border-box;
+            border-top: 1px solid #AAAAAA;
+            background-image: -moz-linear-gradient(
+                center bottom,
+                #CCCCCC 0%,
+                #EBEBEB 75%
+            );
+        }
+        div.item div.actions {
+            background-color:#eee;
+            padding: 5px 15px;
+            border-radius: 6px 6px 0 0;
+        }
+    </style>
+
+
+    <script id="msgShowTemplate" type="text/x-jquery-tmpl">
+        <div class="msg">
+            <span style="color:grey" data-getfrom="[from]"></span>:
+            <span data-getfrom="html: [content]"></span>
+        </div>
+    </script>
+
+    <script id="msgEditTemplate" type="text/x-jquery-tmpl">
+        <form id="msg-new">
+            <input placeholder="from" data-getfrom="[from]" data-to="[from]">
+            <input placeholder="type here" data-getfrom="[content]" data-to="[content]">
+            <input type="submit" value="send there">
+        </form>
+    </script>
+
+
+</head>
+<body>
+
+    <div class="container clearfix">
+        <div class="box clearfix">
+            <header class="grid11 first">
+                <h1 style="text-align:center">chattle</h1>
+            </header>
+        </div>
+
+        <div id="msg-list-tmpl"></div>
+
+        <div id="msg-new-tmpl"></div>
+
+        <footer class="grid12 first box">
+            &copy; by webwurst
+        </footer>
+    </div>
+
+
+    <script>
+
+        var msgs = [];
+        var msg_new = {};
+
+        $("#msg-new").live("submit", storeMsgs);
+
+        $("#msg-list-tmpl").link(msgs, "#msgShowTemplate");
+        $("#msg-new-tmpl").link(msg_new, "#msgEditTemplate");
+
+
+        $.ajaxSetup({
+            processData: false,
+            dataType: "json",
+            contentType: "application/json"
+         });
+
+        fetchMsgs();
+
+
+
+        function fetchMsgs() {
+            url = "/msgs?start=" + msgs.length;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+
+                success: function( new_msgs ) {
+                    if (new_msgs != null) {
+                        var scroll = $(window).scrollTop();
+
+                        $.observable(msgs).insert(msgs.length, new_msgs);
+
+                        var scroll_then = $(window).scrollTop();
+                        $(window).scrollTop(scroll+20);
+                    };
+
+                    // longpolling if no server-sent-events possible
+                    fetchMsgs();
+                },
+
+                error: function( msg ) {
+                    console.log(msg);
+                }
+            })
+        };
+
+
+        function storeMsgs() {
+
+            var data = JSON.stringify(msg_new);
+
+            $.ajax({
+                type: "POST",
+                url: "/msgs",
+                contentType: "application/json",
+                data: data,
+
+                success: function( msg ) {
+                     $.observable(msg_new).setProperty("content", "");
+                },
+
+                error: function( msg ) {
+                    console.log(msg);
+                }
+            })
+            return false;
+        };
+
+
+    </script>
+
+</body>
+</html>
