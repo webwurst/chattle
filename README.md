@@ -12,7 +12,7 @@ Install bottle and gevent with `pip install bottle gevent`.
     $ python chattle.py
 
 
-Open different Browser and chat youself! ;)
+Open different Browser and start chatting!
 
 
 
