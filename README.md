@@ -16,11 +16,10 @@ Open different Browser and chat youself! ;)
 
 
 
-If you want more control over the server setup, you may use Gunicorn:
+If you want more control over the server setup, you may use `pip install gunicorn`:
 
-    $ pip install gunicorn
     $ gunicorn --bind 0.0.0.0:8080 --worker-class gevent --workers 1 chattle
 
-See Gunicorn documentation for more options like daemonizing or dropping privileges when started as root.
+See [Gunicorn](http://gunicorn.org/) [documentation](http://gunicorn.org/configure.html) for more options like daemonizing or dropping privileges when started as root.
 
 If you increase the number of workers you can experience the weirdness happening when every worker maintains his unshared copy of chat-history..
