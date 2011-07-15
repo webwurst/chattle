@@ -14,6 +14,7 @@ Install bottle and gevent with `pip install bottle gevent`.
 
     $ python chattle.py
 
+On Python 2.6 also install [ordereddict](http://pypi.python.org/pypi/ordereddict) `pip install ordereddict`.
 
 Open different Browsers/Windows and start chatting!
 
@@ -30,6 +31,8 @@ If you increase the number of workers you can experience the weirdness happening
 
 How It Works
 ------------
+
+See also: [Primer to Asynchronous Applications](http://bottlepy.org/docs/dev/async.html)
 
 Server and Client only communicate via [Json](http://www.json.org/). 
 
