@@ -11,10 +11,9 @@ Dependencies
 ------------
 
 Install bottle and gevent with `pip install bottle gevent`.
+On Python 2.6 also install [ordereddict](http://pypi.python.org/pypi/ordereddict) `pip install ordereddict`.
 
     $ python chattle.py
-
-On Python 2.6 also install [ordereddict](http://pypi.python.org/pypi/ordereddict) `pip install ordereddict`.
 
 Open different Browsers/Windows and start chatting!
 
