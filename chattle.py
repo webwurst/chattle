@@ -4,7 +4,10 @@ import bottle
 from bottle import route, redirect, static_file, response, request
 from gevent import monkey; monkey.patch_all()
 from gevent.event import Event
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 import json
 import logging
 
