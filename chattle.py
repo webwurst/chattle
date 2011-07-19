@@ -4,12 +4,14 @@ import bottle
 from bottle import route, redirect, static_file, response, request
 from gevent import monkey; monkey.patch_all()
 from gevent.event import Event
+from gevent.pywsgi import WSGIServer
+import json
+import logging
+
 try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
-import json
-import logging
 
 logging.basicConfig(level=logging.DEBUG)
 # logging.basicConfig(filename='chattle.log',level=logging.DEBUG)
@@ -78,8 +80,13 @@ def get_items():
 
 
 if __name__ == "__main__":
-    bottle.debug(True)
-    bottle.run(host='0.0.0.0', port=8080, server='gevent', reloader=True)
+    app = bottle.default_app()
+
+    print 'Serving on 8080...'
+    WSGIServer(('', 8080), app).start()
+
+    print 'Serving on 8443...'
+    WSGIServer(('', 8443), app, keyfile='/etc/ssl/private/ssl-cert-snakeoil.key', certfile='/etc/ssl/certs/ssl-cert-snakeoil.pem').serve_forever()
 
 else:
     application = bottle.default_app()
