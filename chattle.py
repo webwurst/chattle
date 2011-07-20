@@ -7,6 +7,7 @@ from gevent.event import Event
 from gevent.pywsgi import WSGIServer
 import json
 import logging
+from restkit import Resource
 
 try:
     from collections import OrderedDict
@@ -27,14 +28,20 @@ def printj(data):
     print json_dumps(data)
 
 
+couchdb = Resource('http://localhost:5984/')
+try:
+    couchdb.put('chattle/')
+except:
+    pass
+
+couchdb_chattle = Resource('http://localhost:5984/chattle/')
+
+
+
 msgs = [
     {
         'from': 'server',
-        'content': 'Yori!'
-    },
-    {
-        'from': 'server',
-        'content': 'whzz uup?'
+        'content': 'Welcome to Chattle!'
     }
 ]
 
@@ -58,6 +65,7 @@ def get_items():
     while True:
         new_msgs = msgs[start:]
 
+        # wait for _change in couchdb
         if len(new_msgs) == 0:
             event_new_msg.wait()
         else:
@@ -72,6 +80,13 @@ def get_items():
 def get_items():
 
     data = json_loads(request.body.getvalue())
+
+    if '_id' not in data:
+        r = json_loads(couchdb.get('_uuids').body_string(charset='utf-8'))
+        data['_id'] = r[u'uuids'][0] # getone?
+        
+    couchdb_chattle.put(path=data['_id'], payload=json_dumps(data)) # force overwrite
+    
 
     msgs.append(data)
     event_new_msg.set()
