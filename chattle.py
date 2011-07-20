@@ -60,6 +60,13 @@ def server_static(path):
 @route('/msgs', method='GET')
 def get_items():
 
+    r = json_loads(couchdb_chattle.get().body_string(charset='utf-8'))
+    update_seq = r['update_seq']
+    
+    r = json_loads(couchdb_chattle.get('_changes', since=update_seq-2).body_string(charset='utf-8'))
+    print(r)
+    
+
     start = int(request.params.get('start')) or 0
 
     while True:
