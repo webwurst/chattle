@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     print 'Serving on 8443...'
 #    WSGIServer(('', 8443), app, keyfile='server.key', certfile='server.crt').serve_forever()
-    WSGIServer(('', 8443), app, keyfile='ssl-cert-snakeoil.key', certfile='ssl-cert-snakeoil.pem').serve_forever()
+    WSGIServer(('', 8443), app, keyfile='/etc/ssl/private/ssl-cert-snakeoil.key', certfile='/etc/ssl/certs/ssl-cert-snakeoil.pem').serve_forever()
 
 else:
     application = bottle.default_app()
