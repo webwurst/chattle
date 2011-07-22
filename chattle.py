@@ -10,7 +10,7 @@ import logging
 from restkit import Resource
 
 try:
-    from collections import OrderedDict
+    from collections import OrderedDict # py2.7 only
 except ImportError:
     from ordereddict import OrderedDict
 
@@ -28,6 +28,20 @@ def printj(data):
     print json_dumps(data)
 
 
+# planned: couchdb_ressource
+#     uuid, update_seq, _changes
+
+# api-layer so choosing backends is possible 
+#    in-memory, couchdb
+#    mutltiple backends possible. provide different functionality e.g. search
+#
+# api-layer
+#    since - datetime or seq_number
+#    uuid
+#    hash
+#    seperate meta
+
+
 couchdb = Resource('http://localhost:5984/')
 try:
     couchdb.put('chattle/')
@@ -35,6 +49,8 @@ except:
     pass
 
 couchdb_chattle = Resource('http://localhost:5984/chattle/')
+
+
 
 
 
@@ -60,27 +76,22 @@ def server_static(path):
 @route('/msgs', method='GET')
 def get_items():
 
-    r = json_loads(couchdb_chattle.get().body_string(charset='utf-8'))
-    update_seq = r['update_seq']
-    
-    r = json_loads(couchdb_chattle.get('_changes', since=update_seq-2).body_string(charset='utf-8'))
+    # for now sequence_number
+    # later also datetime
+
+
+    since = request.params.get('since') or - 5
+
+    if since < 0:
+        r = json_loads(couchdb_chattle.get().body_string(charset='utf-8'))
+        update_seq = r['update_seq']
+        since = max(0, update_seq + since)
+
+    r = json_loads(couchdb_chattle.get('_changes', since=since, include_docs="true", feed="longpoll").body_string(charset='utf-8'))
     print(r)
-    
-
-    start = int(request.params.get('start')) or 0
-
-    while True:
-        new_msgs = msgs[start:]
-
-        # wait for _change in couchdb
-        if len(new_msgs) == 0:
-            event_new_msg.wait()
-        else:
-            event_new_msg.clear()
-            break
 
     response.content_type = 'application/json;'
-    return json.dumps(new_msgs, indent=4)
+    return json.dumps(r, indent=4)
 
 
 @route('/msgs', method='POST')
@@ -91,9 +102,9 @@ def get_items():
     if '_id' not in data:
         r = json_loads(couchdb.get('_uuids').body_string(charset='utf-8'))
         data['_id'] = r[u'uuids'][0] # getone?
-        
-    couchdb_chattle.put(path=data['_id'], payload=json_dumps(data)) # force overwrite
-    
+
+        couchdb_chattle.put(path=data['_id'], payload=json_dumps(data)) # force overwrite
+
 
     msgs.append(data)
     event_new_msg.set()
@@ -108,7 +119,8 @@ if __name__ == "__main__":
     WSGIServer(('', 8080), app).start()
 
     print 'Serving on 8443...'
-    WSGIServer(('', 8443), app, keyfile='server.key', certfile='server.crt').serve_forever()
+#    WSGIServer(('', 8443), app, keyfile='server.key', certfile='server.crt').serve_forever()
+    WSGIServer(('', 8443), app, keyfile='ssl-cert-snakeoil.key', certfile='ssl-cert-snakeoil.pem').serve_forever()
 
 else:
     application = bottle.default_app()

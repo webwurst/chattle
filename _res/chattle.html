@@ -101,26 +101,28 @@
         fetchMsgs();
 
 
-
-        function fetchMsgs() {
-            url = "/msgs?start=" + msgs.length;
+        function fetchMsgs(since) {
+            url = "/msgs";
+            
+            if (since !== undefined) {
+            	url += "?since=" + since;
+            }
+            
 
             $.ajax({
                 type: "GET",
                 url: url,
 
-                success: function( new_msgs ) {
-                    if (new_msgs != null) {
-                        var scroll = $(window).scrollTop();
+                success: function( r ) {
 
-                        $.observable(msgs).insert(msgs.length, new_msgs);
-
-                        var scroll_then = $(window).scrollTop();
-                        $(window).scrollTop(scroll+20);
-                    };
-
-                    // longpolling if no server-sent-events possible
-                    fetchMsgs();
+                	$.each(r.results, function(index, result) {
+                		
+                        $.observable(msgs).insert(msgs.length, result.doc);
+                        // ^can't handle deletes, edits for now                		
+                	});
+                	
+                    // longpolling
+                    fetchMsgs(r.last_seq);
                 },
 
                 error: function( msg ) {
