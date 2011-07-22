@@ -9,10 +9,13 @@ import json
 import logging
 from restkit import Resource
 
+import argparse
+
 try:
     from collections import OrderedDict # py2.7 only
 except ImportError:
     from ordereddict import OrderedDict
+
 
 logging.basicConfig(level=logging.DEBUG)
 # logging.basicConfig(filename='chattle.log',level=logging.DEBUG)
@@ -113,14 +116,22 @@ def get_items():
 
 
 if __name__ == "__main__":
+    
+    parser = argparse.ArgumentParser(description='Provides a Chattle Server.')
+    parser.add_argument('--lower-port-num', dest='lpn', default='1', type=int,
+                        help='added to default ports 8000 and 4000 (ssl)')
+    args = parser.parse_args()
+    
     app = bottle.default_app()
 
-    print 'Serving on 8080...'
-    WSGIServer(('', 8080), app).start()
+    port_nosec = 8000+args.lpn
+    print('Serving on {0}...'.format(port_nosec))
+    WSGIServer(('', port_nosec), app).start()
 
-    print 'Serving on 8443...'
+    port_ssl = 4000+args.lpn
+    print('Serving on {0}...'.format(port_ssl))
 #    WSGIServer(('', 8443), app, keyfile='server.key', certfile='server.crt').serve_forever()
-    WSGIServer(('', 8443), app, keyfile='/etc/ssl/private/ssl-cert-snakeoil.key', certfile='/etc/ssl/certs/ssl-cert-snakeoil.pem').serve_forever()
+    WSGIServer(('', port_ssl), app, keyfile='/etc/ssl/private/ssl-cert-snakeoil.key', certfile='/etc/ssl/certs/ssl-cert-snakeoil.pem').serve_forever()
 
 else:
     application = bottle.default_app()
