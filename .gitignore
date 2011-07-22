@@ -1,3 +1,6 @@
 *.pyc
 *.pyo
 *.log
+.project
+.pydevproject
+.settings/
