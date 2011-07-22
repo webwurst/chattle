@@ -131,7 +131,7 @@ if __name__ == "__main__":
     port_ssl = 4000+args.lpn
     print('Serving on {0}...'.format(port_ssl))
 #    WSGIServer(('', 8443), app, keyfile='server.key', certfile='server.crt').serve_forever()
-    WSGIServer(('', port_ssl), app, keyfile='/etc/ssl/private/ssl-cert-snakeoil.key', certfile='/etc/ssl/certs/ssl-cert-snakeoil.pem').serve_forever()
+    WSGIServer(('', port_ssl), app, keyfile='ssl-cert-snakeoil.key', certfile='ssl-cert-snakeoil.pem').serve_forever()
 
 else:
     application = bottle.default_app()
