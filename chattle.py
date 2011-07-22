@@ -126,12 +126,12 @@ if __name__ == "__main__":
 
     port_nosec = 8000+args.lpn
     print('Serving on {0}...'.format(port_nosec))
-    WSGIServer(('', port_nosec), app).start()
+    WSGIServer(('127.0.0.1', port_nosec), app).start()
 
     port_ssl = 4000+args.lpn
     print('Serving on {0}...'.format(port_ssl))
 #    WSGIServer(('', 8443), app, keyfile='server.key', certfile='server.crt').serve_forever()
-    WSGIServer(('', port_ssl), app, keyfile='ssl-cert-snakeoil.key', certfile='ssl-cert-snakeoil.pem').serve_forever()
+    WSGIServer(('127.0.0.1', port_ssl), app, keyfile='ssl-cert-snakeoil.key', certfile='ssl-cert-snakeoil.pem').serve_forever()
 
 else:
     application = bottle.default_app()
